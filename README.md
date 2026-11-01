@@ -60,7 +60,7 @@ I investigated operational performance, customer complaints, data quality and po
 
 ### 3. Failure-rate correction
 
-![Delivery failure rate dashboard](PowerBI_Screenshot_03_recoverable_revenue.png)
+![Delivery failure rate dashboard](PowerBI_Screenshot_02_delivery_failure_rate.png)
 *Power BI: raw vs corrected failure rate and the retry-bug pattern.*
 
 
@@ -104,7 +104,7 @@ I investigated operational performance, customer complaints, data quality and po
 
 ### 6. Delivery time and timestamp quality
 
-![Service time audit dashboard](screenshots/PowerBI_Screenshot_05_service_time_audit.png)
+![Service time audit dashboard](PowerBI_Screenshot_05_service_time_audit.png)
 *Power BI: raw vs corrected transit hours by year and hub.*
 
 
