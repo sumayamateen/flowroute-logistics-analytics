@@ -87,17 +87,16 @@ Supporting results:
 
 ## Dashboard previews
 
-> Add your screenshots to `screenshots/` using these names, then keep the lines below.
 
-| Complaints (Ep 1) | Failure-rate correction (Ep 2) |
+| Complaints | Failure-rate correction |
 |---|---|
 | ![Complaints](PowerBI_Screenshot_01_complaint_volume.png) | ![Failure rate](PowerBI_Screenshot_02_delivery_failure_rate.png) |
 
-| Weight leakage (Ep 3) | COD reconciliation (Ep 4) |
+| Weight leakage | COD reconciliation |
 |---|---|
 | ![Weight leakage](PowerBI_Screenshot_03_recoverable_revenue.png) | ![COD](PowerBI_Screenshot_04_cash_on_delivery_audit.png) |
 
-| Transit time (Ep 5) | Board pack KPIs (Ep 6) |
+| Transit time | Board pack KPIs |
 |---|---|
 | ![Transit](PowerBI_Screenshot_05_service_time_audit.png) | ![Board pack](PowerBI_Screenshot_06_kpis_analysis.png) |
 
