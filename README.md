@@ -19,7 +19,7 @@
 | Failure rate | 9.99% | **9.80%** | Data error | 3,447 failed shipments affected by a retry bug |
 | Recorded COD | ₦54.61bn | **₦54.30bn** | Data error | COD amounts on 62,254 non-COD shipments |
 | Avg delivery time | 61.29 hrs | **61.90 hrs** | Data error | 12,335 records with delivery before pickup |
-| Weight under-declaration | ₦1,017.4M | **₦760.9M** | **Judgement** | >20% threshold; about ₦152M in the latest 12 months |
+| Weight under-declaration | ₦1.02bn | **₦760.9M** | **Judgement** | >20% threshold; about ₦152M in the latest 12 months |
 
 ![Board pack KPIs](PowerBI_Screenshot_06_kpis_analysis.png)
 *Power BI board pack: corrected vs raw figures side by side.*
@@ -84,7 +84,7 @@ I investigated operational performance, customer complaints, data quality and po
 | Metric | Result |
 |---|---:|
 | Shipments over the 20% threshold (all-time) | 323,752 |
-| Shortfall before applying the threshold | ₦1,017.4M |
+| Shortfall before applying the threshold | ₦1.02bn |
 | Shortfall after applying the threshold | **₦760.9M** |
 | Latest 12 months (>20% tier) | 64,673 shipments, **₦152.25M** |
 
@@ -160,8 +160,7 @@ Money is stored in kobo and converted to naira (÷100) for reporting.
 
 - This is a simulated case study from DataSimHQ, not a live engagement. The raw data belongs to DataSimHQ and is not included.
 - **The cause of delivery failures is not yet established.** Shipment characteristics, routes and tracking events were not analysed.
-- COD amounts without a matching receipt need reconciliation. They are not confirmed missing funds.
-- The 20% weight threshold, the 72-hour benchmark and the over-cap failure correction are assumptions.
+- The 20% weight threshold and the over-cap failure correction are assumptions.
 - The timezone explanation for negative transit times is unverified.
 - Estimated recoverable fees are not confirmed collections.
 - **Excel files use samples or shorter time windows.** Board figures come from SQL and Power BI on the full data.
