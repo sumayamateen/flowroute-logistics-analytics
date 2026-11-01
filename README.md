@@ -24,7 +24,7 @@
 ![Board pack KPIs](PowerBI_Screenshot_06_kpis_analysis.png)
 *Power BI board pack: corrected vs raw figures side by side.*
 
-**Quick links:** [Key findings](#key-findings) · [Recommendations](#business-recommendations) · [Limitations](#limitations--assumptions) · [Reproduce](#how-to-reproduce) · [Full report](reports/business_insights_and_recommendations.pdf)
+**Quick links:** [Key findings](#key-findings) · [Recommendations](#business-recommendations) · [Limitations](#limitations--assumptions) · [Reproduce](#how-to-reproduce) · [Full report](bussiness_insights_&_recommendations.pdf)
 
 ---
 
