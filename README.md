@@ -15,7 +15,7 @@
 - **The bigger risks sit in reporting:** 95% of "in-flight" shipments are over 90 days old, and 74% of delivered cash-on-delivery (COD) has no matching receipt.
 
 | Metric | System figure | Adjusted | Reason |
-|---|---:|---:|---|---|
+|---|---:|---:|---|
 | Failure rate | 9.99% | **9.80%** | 3,447 failed shipments affected by a retry bug |
 | Recorded COD | ₦54.61bn | **₦54.30bn** | COD amounts on 62,254 non-COD shipments |
 | Avg delivery time | 61.29 hrs | **61.90 hrs** | 12,335 records with delivery before pickup |
