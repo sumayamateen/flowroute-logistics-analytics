@@ -21,7 +21,7 @@
 | Avg delivery time | 61.29 hrs | **61.90 hrs** | Data error | 12,335 records with delivery before pickup |
 | Weight under-declaration | ₦1,017.4M | **₦760.9M** | **Judgement** | >20% threshold; about ₦152M in the latest 12 months |
 
-![Board pack KPIs](screenshots/PowerBI_Screenshot_06_kpis_analysis.png)
+![Board pack KPIs](PowerBI_Screenshot_06_kpis_analysis.png)
 *Power BI board pack: corrected vs raw figures side by side.*
 
 **Quick links:** [Key findings](#key-findings) · [Recommendations](#business-recommendations) · [Limitations](#limitations--assumptions) · [Reproduce](#how-to-reproduce) · [Full report](reports/business_insights_and_recommendations.pdf)
@@ -42,7 +42,7 @@ I investigated operational performance, customer complaints, data quality and po
 
 ### 1. Customer complaints
 
-![Customer complaints dashboard](screenshots/PowerBI_Screenshot_01_complaint_volume.png)
+![Customer complaints dashboard](PowerBI_Screenshot_01_complaint_volume.png)
 *Power BI: complaint volume by category, year and month.*
 
 - Total complaints: **64,737**, all linked to a failed (53,897) or returned (10,840) shipment. About 30% of those shipments generate a complaint.
@@ -60,7 +60,7 @@ I investigated operational performance, customer complaints, data quality and po
 
 ### 3. Failure-rate correction
 
-![Delivery failure rate dashboard](screenshots/PowerBI_Screenshot_02_delivery_failure_rate.png)
+![Delivery failure rate dashboard](PowerBI_Screenshot_03_recoverable_revenue.png)
 *Power BI: raw vs corrected failure rate and the retry-bug pattern.*
 
 
@@ -94,7 +94,7 @@ I investigated operational performance, customer complaints, data quality and po
 
 ### 5. Cash-on-delivery data quality
 
-![COD audit dashboard](screenshots/PowerBI_Screenshot_04_cash_on_delivery_audit.png)
+![COD audit dashboard](PowerBI_Screenshot_04_cash_on_delivery_audit.png)
 *Power BI: reported vs corrected COD exposure.*
 
 - 62,254 shipments with a non-COD payment method carried a COD amount, worth about **₦313.9M** (0.58%). Reported COD ₦54.61bn becomes **₦54.30bn** after exclusion.
