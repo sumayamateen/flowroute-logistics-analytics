@@ -1,152 +1,186 @@
 # FlowRoute Logistics: Operational Data Analysis
 
-**Role simulated:** Data Analyst · **Tools:** PostgreSQL, Power BI, Excel · **Scale:** 1.8M shipments, 8 hubs, 5 years of data
+**SQL · Microsoft Excel · Power BI · PostgreSQL** | Data Analyst (simulated) | DataSimHQ | Logistics & Supply Chain
 
-> I investigated why a last-mile delivery company's complaints were rising, found which "problems" were data errors and which were real, and produced a board pack of corrected figures with every correction justified.
+**Dataset:** 1.8M shipments · 12M tracking events · 8 hubs · 4,200 drivers · 2020 to 2024
 
-**Quick links:** [Executive summary](#executive-summary) · [Key findings](#key-findings) · [Workflow](#workflow) · [Dashboard previews](#dashboard-previews) · [Recommendations](#recommendations) · [Limitations](#limitations-and-open-items) · [Reproduce](#how-to-reproduce) · [Report](reports/findings_summary.md)
+> A delivery company said complaints were rising and could not tell whether the cause was a bad hub, delivery failures, financial leakage or inaccurate reporting. I tested each explanation, corrected four misleading system figures, and showed what the data does and does not prove.
+
+## Results at a glance
+
+- **Every complaint (64,737) sits on a failed or returned shipment.** About 30% of those shipments produce a complaint. Delivered and in-flight shipments produce none.
+- **No hub, customer type or driver is an outlier.** Driver failure rates vary exactly as much as chance predicts, so the problem is systemic, not local.
+- **The complaint "spike" is not supported by the data.** The rate has been about 36 per 1,000 shipments every year from 2020 to 2024.
+- **The ~10% failure rate is real.** A software bug inflated it by only 0.19 pp.
+- **The bigger risks sit in reporting:** 95% of "in-flight" shipments are over 90 days old, and 74% of delivered cash-on-delivery (COD) has no matching receipt.
+
+| Metric | System figure | Adjusted | Type of adjustment | Reason |
+|---|---:|---:|---|---|
+| Failure rate | 9.99% | **9.80%** | Data error | 3,447 failed shipments affected by a retry bug |
+| Recorded COD | ₦54.61bn | **₦54.30bn** | Data error | COD amounts on 62,254 non-COD shipments |
+| Avg delivery time | 61.29 hrs | **61.90 hrs** | Data error | 12,335 records with delivery before pickup |
+| Weight under-declaration | ₦1,017.4M | **₦760.9M** | **Judgement** | >20% threshold; about ₦152M in the latest 12 months |
+
+![Board pack KPIs](screenshots/PowerBI_Screenshot_06_kpis_analysis.png)
+*Power BI board pack: corrected vs raw figures side by side.*
+
+**Quick links:** [Key findings](#key-findings) · [Recommendations](#business-recommendations) · [Limitations](#limitations--assumptions) · [Reproduce](#how-to-reproduce) · [Full report](reports/business_insights_and_recommendations.pdf)
 
 ---
 
-## 1. Project overview
+## Project overview
 
-FlowRoute Logistics Co. is a simulated Nigerian last-mile delivery network (8 hubs, 3,000+ drivers). The project was completed on the DataSimHQ analyst simulation platform as six client "episodes", each requested by a different stakeholder (COO, Head of CX, Financial Controller, Head of Data). The data is simulated.
+I investigated operational performance, customer complaints, data quality and potential financial leakage for FlowRoute Logistics, a simulated last-mile delivery company with eight hubs in Nigeria. Working through six stakeholder-led challenges, I used PostgreSQL, Excel and Power BI to test business assumptions, validate reported metrics and prepare recommendations.
 
-## 2. Business problem
+**The central question was not just what the numbers showed, but whether management could trust them.**
 
-Complaints had risen for three months, and the board wanted answers. Leadership could not tell whether the cause was a real operational failure, a specific hub, financial leakage, or errors in the data itself.
+**Business problem:** leadership could not tell whether rising complaints came from poor hub performance, delivery failures, financial leakage or inaccurate system reporting. The goal was to separate genuine operational problems from data-quality issues.
 
-## 3. Objectives
-
-| # | Stakeholder question | What I had to deliver |
-|---|---|---|
-| 1 | How big is the complaint problem, and where? | Complaint volumes by category and hub |
-| 2 | Is the reported failure rate real? | Failure rate corrected for an app defect, with the defect dated and sized |
-| 3 | How much revenue is lost to under-declared weights, and who causes it? | Leakage in naira, split by customer type and hub |
-| 4 | What is the real cash-on-delivery (COD) position? | Audit figure reconciled to the data |
-| 5 | What delivery-time figure can the board trust? | Average and median transit time with documented exclusions |
-| 6 | Put it together | Raw vs corrected figures, with the reason for each correction |
-
-## 4. Dataset
-
-PostgreSQL schema `logistics` with 11 objects (9 tables, 2 views). Money is stored in kobo (÷100 for naira).
-
-| Table | Content | Rows (approx.) |
-|---|---|---|
-| `shipments` | Shipment, fee, weight, COD, attempts, timestamps | 1.8M |
-| `tracking_events` | Scan and status events | 12M |
-| `complaints` | Category, status, resolution date | 64,737 |
-| `payments`, `routes`, `drivers`, `hubs`, `customers`, `delivery_addresses` | Supporting dimensions | n/a |
-| `v_shipment_performance`, `v_hub_performance` | Provided summary views | n/a |
-
-**Raw data is not included in this repository** (it belongs to DataSimHQ). See [`data/README.md`](data/README.md) for how to obtain it.
-
-**Data issues found:** the data dictionary does not match the real data. Shipment statuses `created`, `out_for_delivery` and `cancelled` exist but are undocumented, and `pending` and `picked_up` do not exist. Payment methods `credit` and `wallet` are also undocumented.
-
-## 5. Workflow
-
-```mermaid
-flowchart LR
-    A[Raw data<br/>PostgreSQL] --> B[Profile and validate<br/>nulls, enums, timestamps]
-    B --> C[Define metrics<br/>rate not count,<br/>stated populations]
-    C --> D[Investigate<br/>SQL, one question<br/>per episode]
-    D --> E[Cross-check<br/>SQL vs Excel<br/>vs Power BI]
-    E --> F[Document exclusions<br/>raw vs corrected]
-    F --> G[Board pack<br/>and recommendations]
-```
-
-Key analytical decisions made along the way:
-
-- **Normalised before comparing.** Compared rates (complaints per 1,000, % under-declared, ₦ per parcel), not totals, so large groups were not blamed for their volume.
-- **Reconciled three tools.** Every headline figure was computed in SQL, Excel and Power BI, and the differences were investigated (time windows, timezones, sample vs population).
-- **Separated data errors from judgement calls.** Three corrections remove records that cannot be right. The weight correction depends on a threshold I chose, so both tiers are shown.
-- **Stated the population for every metric** (all shipments vs delivered only; all-time vs 12 months).
-
-## Executive summary
-
-Four system figures were corrected, and the corrections are small. The failure rate of about 10% is real, not a software artefact. **No hub, complaint category or customer type is an outlier in any analysis, so the problems are systemic and need process and system fixes, not action against particular sites or customer groups.** The larger risks are data and process gaps that the raw reports do not show: parcels stuck "in flight" for months, and delivered COD with no matching cash receipt.
+**Approach:** SQL investigation → Excel validation → Power BI reporting → business recommendations.
 
 ## Key findings
 
-| Area | Raw system | Adjusted | Difference | Type of adjustment | Reason |
-|---|---|---|---|---|---|
-| Failure rate (all shipments) | 9.99% | **9.80%** | 0.19 pp | Data error | App let delivery attempts exceed policy on 3,447 failed shipments (Jan 2020 to 14 Mar 2023) |
-| Weight under-declaration (all-time) | ₦1,017.4M | **₦760.9M** (>20% over declared) | ₦256.5M | Judgement (threshold) | Excludes excesses of 20% or less as possible scale tolerance; **not proven to be noise** |
-| Recorded COD amounts | ₦54.61bn | **₦54.30bn** | ₦313.9M (0.58%) | Data error | 62,254 non-COD shipments carry a COD amount of about ₦5,000 each |
-| Average delivery time (delivered only) | 61.29 hrs | **61.90 hrs** (median 61.86) | 0.61 hrs | Data error | 12,335 delivered shipments have delivery before pickup (to 2 Jun 2022); 99.05% of delivered shipments included |
+### 1. Customer complaints
 
-Supporting results:
+![Customer complaints dashboard](screenshots/PowerBI_Screenshot_01_complaint_volume.png)
+*Power BI: complaint volume by category, year and month.*
 
-- **Complaints:** 64,737 total, **all on failed or returned shipments** (about 30% of those shipments complain). The rate is steady at about 36 per 1,000 shipments every year, hubs sit at 35.7 to 36.5, and categories split evenly (24.7% to 25.6%). 65.1% were resolved.
-- **Drivers:** 4,200 drivers; the spread of failure rates equals what chance predicts (1.45 pp), so no driver is measurably worse.
-- **Weight leakage, last 12 months:** 64,673 shipments over 20% above declared weight, ₦152.25M. Business and individual accounts behave the same (about 20.7% and about ₦2,350 per parcel), so the hypothesis that business accounts were the cause is rejected.
-- **Failure bug:** 100% of the 3,447 affected shipments are `failed`, spread evenly across hubs. Correcting for it moves the rate by only 0.19 pp.
-- **Missing delivery-address coordinates:** 20% of shipments (360,509). Failure rate is 10.00% with coordinates and 9.95% without, so there is no measurable service impact.
-- **Transit time:** hub averages range 61.87 to 61.94 hrs. Against a 72-hour benchmark (my assumption), 58.7% of valid delivered shipments arrive on time.
-- **Negative transit times** are 1 to 12 hours, larger than a UK/Lagos clock difference, so the "timezone" explanation given by the client is plausible but **not independently confirmed**.
+- Total complaints: **64,737**, all linked to a failed (53,897) or returned (10,840) shipment. About 30% of those shipments generate a complaint.
+- The four categories are split evenly (24.7% to 25.6%), so no category dominates. Lost is marginally largest at 25.57% (16,551).
+- Hub complaint rates range from 35.7 to 36.5 per 1,000 shipments. About 65.1% of complaints were resolved.
+- The annual complaint rate stayed around 36 per 1,000 shipments from 2020 to 2024.
 
-## Dashboard previews
+**Insight:** no category or hub stands out. Focus on broader delivery and customer-service processes, not one location.
+
+### 2. Hub and driver performance
+- Delivery rates across the eight hubs range from 71.90% to 72.08%.
+- Across 4,200 drivers, the spread of failure rates (1.45 pp) matches the spread expected by chance, and no driver outlier was found.
+
+**Insight:** failures are not concentrated in a hub or driver. Look at network-wide processes, routes, shipment characteristics and tracking events.
+
+### 3. Failure-rate correction
+
+![Delivery failure rate dashboard](screenshots/PowerBI_Screenshot_02_delivery_failure_rate.png)
+*Power BI: raw vs corrected failure rate and the retry-bug pattern.*
 
 
-| Complaints | Failure-rate correction |
-|---|---|
-| ![Complaints](PowerBI_Screenshot_01_complaint_volume.png) | ![Failure rate](PowerBI_Screenshot_02_delivery_failure_rate.png) |
+| Metric | Reported | Corrected |
+|---|---:|---:|
+| Failed shipments | 179,859 | 176,412 |
+| Failure rate | 9.99% | **9.80%** |
 
-| Weight leakage | COD reconciliation |
-|---|---|
-| ![Weight leakage](PowerBI_Screenshot_03_recoverable_revenue.png) | ![COD](PowerBI_Screenshot_04_cash_on_delivery_audit.png) |
+- 3,447 failed shipments had delivery attempts above their permitted maximum. All had status `failed`, spread across hubs, from Jan 2020 to 14 Mar 2023.
+- The correction assumes those shipments were not genuinely failed, so the defensible statement is a range of 9.80% to 9.99%.
 
-| Transit time | Board pack KPIs |
-|---|---|
-| ![Transit](PowerBI_Screenshot_05_service_time_audit.png) | ![Board pack](PowerBI_Screenshot_06_kpis_analysis.png) |
+**Insight:** the bug affected reporting only slightly. Failures remain close to 10% and are a real operational concern.
 
-## Recommendations
+### 4. Shipment weight under-declaration
 
-| Priority | Action | Evidence | Expected effect |
+![Weight leakage dashboard](screenshots/PowerBI_Screenshot_03_recoverable_revenue.png)
+*Power BI: recoverable weight-leakage revenue by customer type and hub.*
+
+**Rule:** under-declared when `actual weight > declared weight × 1.20`. Estimated shortfall = `shipping fee × (actual / declared − 1)`, converted from kobo to naira.
+
+| Metric | Result |
+|---|---:|
+| Shipments over the 20% threshold (all-time) | 323,752 |
+| Shortfall before applying the threshold | ₦1,017.4M |
+| Shortfall after applying the threshold | **₦760.9M** |
+| Latest 12 months (>20% tier) | 64,673 shipments, **₦152.25M** |
+
+- Individual and business accounts under-declare at similar rates (20.72% vs 20.66%) with similar shortfall per parcel. Individuals account for more of the total only because they ship more.
+
+**Insight:** business customers are not worse than individuals, so strengthen weight verification for everyone. The 20% threshold is my assumption, intended to exclude scale and packaging variation. It does not prove the excluded differences are harmless.
+
+### 5. Cash-on-delivery data quality
+
+![COD audit dashboard](screenshots/PowerBI_Screenshot_04_cash_on_delivery_audit.png)
+*Power BI: reported vs corrected COD exposure.*
+
+- 62,254 shipments with a non-COD payment method carried a COD amount, worth about **₦313.9M** (0.58%). Reported COD ₦54.61bn becomes **₦54.30bn** after exclusion.
+- About 74% of delivered COD shipments have no completed `cod_cash` payment record (about ₦36.6bn of recorded COD amounts). This needs reconciliation. It is **not confirmed missing cash**.
+
+**Insight:** reconcile COD amounts against payment and cash-receipt records before treating any figure as a confirmed loss.
+
+### 6. Delivery time and timestamp quality
+
+![Service time audit dashboard](screenshots/PowerBI_Screenshot_05_service_time_audit.png)
+*Power BI: raw vs corrected transit hours by year and hub.*
+
+
+| Metric | Reported | Adjusted |
+|---|---:|---:|
+| Average delivery time | 61.29 hrs | **61.90 hrs** |
+| Median delivery time | n/a | **61.86 hrs** |
+
+- 12,335 delivered shipments had delivery before pickup (records up to 2 Jun 2022), and were excluded. 99.05% of delivered shipments remain.
+- Hub averages range from 61.87 to 61.94 hours.
+- Against an assumed 72-hour benchmark, 58.7% of valid delivered shipments arrived on time.
+- The negative times run from 1 to 12 hours. A timezone issue was suggested but is not independently confirmed.
+
+**Insight:** validate timestamps before using delivery-time metrics. The 72-hour benchmark is my assumption, not company policy.
+
+### 7. Additional data-quality checks
+- **Missing coordinates:** 360,509 shipments (about 20%). Failure rate is 10.00% with coordinates and 9.95% without, so no measurable effect.
+- **Stuck in-flight shipments:** 256,625 (95% of in-flight) are over 90 days old, with about ₦7.75bn in recorded COD amounts. They produce no complaints, so they are a status-reporting and reconciliation risk.
+
+## Business recommendations
+
+| Priority | Recommendation | Evidence | Intended outcome |
 |---|---|---|---|
-| 1 | Reconcile delivered COD against cash receipts | 74% of delivered COD parcels have no completed `cod_cash` payment (₦36.6bn recorded amount, not confirmed as missing cash) | Confirms whether this is a recording gap or a cash-control problem |
-| 2 | Close out or investigate stuck shipments | 256,625 shipments (95% of in-flight) are over 90 days old, worth ₦7.75bn in COD amounts | Cleaner status data; these shipments produce no complaints, so this is a reporting and cash risk |
-| 3 | Re-bill weight differences automatically at the hub scale | About ₦152M a year on parcels over 20% above declared weight, at a steady rate | Illustrative recovery of ₦38M to ₦114M a year at 25% to 75% recovery |
-| 4 | Block COD amounts on non-COD shipments at data entry | About 1,000 shipments a month since Jan 2020, still occurring | Removes the ₦313.9M overstatement in audit reports |
-| 5 | Fix timestamp capture and update the data dictionary | 12,335 impossible transit records; undocumented enums | Trustworthy service-time reporting |
+| 1 | Reconcile delivered COD against completed cash receipts | 74% of delivered COD shipments lack a completed cash payment record | Establish the actual cash position |
+| 2 | Reduce failed and returned deliveries, and contact customers when a delivery fails | All complaints sit on failed or returned shipments | Fewer complaints |
+| 3 | Investigate why deliveries fail (shipment type, routes, tracking events) | Failure is uniform at about 10% and not explained by hub, driver, customer or coordinates | Find the operational cause |
+| 4 | Close out in-flight shipments over 90 days | 256,625 shipments | Accurate status and financial visibility |
+| 5 | Automate weight verification and fee adjustment | About ₦152.25M estimated in the latest 12-month window | Reduce undercharging |
+| 6 | Block COD amounts on non-COD shipments | 62,254 inconsistent records | Accurate financial reporting |
+| 7 | Validate delivery attempts and timestamps at entry | Retry anomalies and 12,335 invalid transit records | Reliable KPIs |
 
-Scenario revenue impact (illustrative): **₦40.0M / ₦81.1M / ₦124.1M a year** (cautious / expected / ambitious). Recovery rates and failure-rate cuts are assumptions, not forecasts. The failure lever uses the 2024 average fee on failed shipments (₦2,754, 36,255 failures).
+## How to reproduce
 
-## Limitations and open items
+1. Get access to the simulated dataset through [DataSimHQ](https://datasimhq.com/) and connect to the `logistics` schema in PostgreSQL.
+2. Read `data/README.md` and the data dictionary.
+3. Run the scripts in `sql/` in numbered order.
+4. Open `powerbi/flowroute_dashboard.pbix`, set the data source and refresh.
+5. Open the Excel workbook in `excel/` for supporting calculations and cross-checks.
 
-I list these so no reader has to find them:
-
-- **The cause of failed deliveries is unknown.** Hubs, customer type, coordinates and drivers are rejected. Shipment characteristics, routes and tracking events were not analysed.
-- **The monthly complaint rate was calculated by hand** (about 36 per 1,000 in every year), so a SQL check would confirm that there is no spike.
-- **COD receipt gap is unresolved.** I did not finish checking what payments exist for delivered COD parcels, so I cannot say whether the ₦36.6bn is a recording gap or a cash problem.
-- **The 3,447 over-cap failures** were removed on the assumption they are not genuine failures. The range 9.80% to 9.99% is the defensible statement.
-- **The >20% weight threshold** is a judgement. I did not test it against smaller excesses.
-- **The 72-hour SLA** is an assumption, not a client-stated target.
-- **Excel files use sample extracts.** Board figures come from SQL on the full data.
-- **The cause of negative transit times** is unconfirmed.
-
-
+**Validation checkpoints**
 
 | Check | Expected |
-|---|---|
+|---|---:|
 | Total complaints | 64,737 |
-| Failed shipments (raw / corrected) | 179,859 / 176,412 |
+| Raw / corrected failed shipments | 179,859 / 176,412 |
 | Shipments over 20% above declared weight | 323,752 |
-| Phantom COD shipments | 62,254 |
-| Valid delivered shipments in transit average | 1,283,555 |
+| Non-COD shipments with a COD amount | 62,254 |
+| Valid delivered shipments in the transit average | 1,283,555 |
 
-4. **Power BI:** open `powerbi/flowroute_dashboard.pbix`, point the data source to your connection, and refresh. All measures are also in `powerbi/measures.dax`.
-5. **Excel:** the workbook holds extracts for demonstration. Board figures are pasted from SQL as values, with sources noted.
+Money is stored in kobo and converted to naira (÷100) for reporting.
 
-Conventions used throughout: money converted from kobo to naira; "pp" means percentage points; every figure states its window and population.
+## Limitations & assumptions
+
+- This is a simulated case study from DataSimHQ, not a live engagement. The raw data belongs to DataSimHQ and is not included.
+- **The cause of delivery failures is not yet established.** Shipment characteristics, routes and tracking events were not analysed.
+- COD amounts without a matching receipt need reconciliation. They are not confirmed missing funds.
+- The 20% weight threshold, the 72-hour benchmark and the over-cap failure correction are assumptions.
+- The timezone explanation for negative transit times is unverified.
+- Estimated recoverable fees are not confirmed collections.
+- **Excel files use samples or shorter time windows.** Board figures come from SQL and Power BI on the full data.
+- Cross-tool reconciliation raises confidence in calculations but does not prove every source record is accurate.
 
 ## What this project demonstrates
 
-| Skill | Where to see it |
+| Skill | Evidence |
 |---|---|
-| Rate vs volume thinking, normalisation | Complaints per 1,000; leakage per shipment by customer type |
-| SQL: CTEs, window functions, filtered aggregates, percentiles | `sql/02`, `sql/04`, `sql/05` |
-| Data validation and reconciliation across tools | Failure-rate, weight and COD figures matched in SQL, Excel and Power BI |
-| Documenting analytical decisions | Exclusion rules and correction type in the Key findings table |
-| Business communication | Executive summary, recommendations, limitations |
+| SQL | Joins, CTEs, window functions, filtered aggregates, conditional calculations |
+| Data quality analysis | Retry anomalies, inconsistent COD fields, invalid timestamps |
+| Financial analysis | Fee shortfall, COD reconciliation, kobo to naira conversion |
+| Statistical thinking | Rate comparisons, normalisation, driver variation tested against chance |
+| Excel and Power BI | Cross-tool validation, KPI dashboards, management reporting |
+| Business communication | Findings, recommendations and limitations written for stakeholders |
+| Critical thinking | Tested hypotheses, rejected several, separated data errors from judgement calls |
 
+**My approach:** validate the data, test the assumptions, explain the findings, support better decisions.
+
+---
+
+**Connect:** [LinkedIn](YOUR_LINKEDIN_PROFILE_URL) · [GitHub](YOUR_GITHUB_PROFILE_URL)
