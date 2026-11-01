@@ -91,15 +91,15 @@ Supporting results:
 
 | Complaints (Ep 1) | Failure-rate correction (Ep 2) |
 |---|---|
-| ![Complaints](PowerBI_Screenshot_01_complaint_volume.png) | ![Failure rate](screenshots/ep2_failure_rate_raw_vs_corrected.png) |
+| ![Complaints](PowerBI_Screenshot_01_complaint_volume.png) | ![Failure rate](PowerBI_Screenshot_02_delivery_failure_rate.png) |
 
 | Weight leakage (Ep 3) | COD reconciliation (Ep 4) |
 |---|---|
-| ![Weight leakage](screenshots/ep3_weight_leakage_by_customer_type.png) | ![COD](screenshots/ep4_cod_raw_vs_corrected.png) |
+| ![Weight leakage](PowerBI_Screenshot_03_recoverable_revenue.png) | ![COD](PowerBI_Screenshot_04_cash_on_delivery_audit.png) |
 
 | Transit time (Ep 5) | Board pack KPIs (Ep 6) |
 |---|---|
-| ![Transit](screenshots/ep5_transit_time_by_hub.png) | ![Board pack](screenshots/ep6_board_pack_kpis.png) |
+| ![Transit](PowerBI_Screenshot_05_service_time_audit.png) | ![Board pack](PowerBI_Screenshot_06_kpis_analysis.png) |
 
 ## Recommendations
 
