@@ -91,7 +91,7 @@ Supporting results:
 
 | Complaints (Ep 1) | Failure-rate correction (Ep 2) |
 |---|---|
-| ![Complaints](screenshots/ep1_complaints_overview.png) | ![Failure rate](screenshots/ep2_failure_rate_raw_vs_corrected.png) |
+| ![Complaints](PowerBI_Screenshot_01_complaint_volume.png) | ![Failure rate](screenshots/ep2_failure_rate_raw_vs_corrected.png) |
 
 | Weight leakage (Ep 3) | COD reconciliation (Ep 4) |
 |---|---|
