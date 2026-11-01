@@ -76,7 +76,7 @@ I investigated operational performance, customer complaints, data quality and po
 
 ### 4. Shipment weight under-declaration
 
-![Weight leakage dashboard](screenshots/PowerBI_Screenshot_03_recoverable_revenue.png)
+![Weight leakage dashboard](PowerBI_Screenshot_03_recoverable_revenue.png)
 *Power BI: recoverable weight-leakage revenue by customer type and hub.*
 
 **Rule:** under-declared when `actual weight > declared weight × 1.20`. Estimated shortfall = `shipping fee × (actual / declared − 1)`, converted from kobo to naira.
@@ -183,4 +183,4 @@ Money is stored in kobo and converted to naira (÷100) for reporting.
 
 ---
 
-**Connect:** [LinkedIn](YOUR_LINKEDIN_PROFILE_URL) · [GitHub](YOUR_GITHUB_PROFILE_URL)
+**Connect:** [LinkedIn](https://www.linkedin.com/in/sumaya-mateen/) · [GitHub](https://github.com/sumayamateen)
